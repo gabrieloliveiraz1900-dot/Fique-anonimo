@@ -1,259 +1,1062 @@
---[[
-	WARNING: Heads up! This script has not been verified by ScriptBlox. Use at your own risk!
-]]
--- View Player GUI (Full System with Password + Modded GUI + Sounds + No Typing)
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local Camera = workspace.CurrentCamera
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usar VPN</title>
+    <!-- Leaflet Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-local gui = Instance.new("ScreenGui")
-gui.Name = "ViewSystem"
-gui.ResetOnSpawn = false
-gui.Parent = gethui and gethui() or game.CoreGui
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #22c55e;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+        }
 
-game.StarterGui:SetCore("SendNotification", {
-	Title = "Welcome",
-	Text = "Welcome to View Player GUI, " .. LocalPlayer.Name .. "!",
-	Duration = 5
-})
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            color: var(--text);
+        }
 
-local function createButton(parent, text, size, pos, color)
-	local btn = Instance.new("TextButton")
-	btn.Text = text
-	btn.Size = size
-	btn.Position = pos
-	btn.BackgroundColor3 = color
-	btn.TextColor3 = Color3.new(1, 1, 1)
-	btn.Font = Enum.Font.SourceSansBold
-	btn.TextSize = 16
-	btn.Parent = parent
-	local sound = Instance.new("Sound", btn)
-	sound.SoundId = "rbxassetid://12221967"
-	btn.MouseButton1Click:Connect(function()
-		sound:Play()
-	end)
-	return btn
-end
+        /* HOME PAGE */
+        .home-container {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
 
-local function createLabel(parent, text, size, pos)
-	local lbl = Instance.new("TextLabel")
-	lbl.Text = text
-	lbl.Size = size
-	lbl.Position = pos
-	lbl.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-	lbl.TextColor3 = Color3.new(1, 1, 1)
-	lbl.Font = Enum.Font.SourceSans
-	lbl.TextSize = 16
-	lbl.Parent = parent
-	return lbl
-end
+        .card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: slideUp 0.5s ease;
+        }
 
-local viewHistory = {}
-local function addToHistory(name)
-	for _, n in pairs(viewHistory) do if n == name then return end end
-	table.insert(viewHistory, name)
-	if #viewHistory > 5 then viewHistory = {} end
-end
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
--- GUI 1
-local gui1 = Instance.new("Frame", gui)
-gui1.Size = UDim2.new(0, 320, 0, 420)
-gui1.Position = UDim2.new(0.3, 0, 0.3, 0)
-gui1.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-gui1.Active = true
-gui1.Draggable = true
+        .icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
 
-createLabel(gui1, "View Player GUI 👁️", UDim2.new(1, 0, 0, 30), UDim2.new(0, 0, 0, 0))
+        .icon.success { color: var(--success); }
+        .icon.error { color: var(--error); }
 
-local nameBox = Instance.new("TextBox", gui1)
-nameBox.Size = UDim2.new(0, 180, 0, 40)
-nameBox.Position = UDim2.new(0, 110, 0, 40)
-nameBox.PlaceholderText = "Enter player name"
-nameBox.Text = ""
-nameBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-nameBox.TextColor3 = Color3.new(1, 1, 1)
+        h1 {
+            font-size: 28px;
+            margin-bottom: 16px;
+            font-weight: 700;
+        }
 
-local avatar = Instance.new("ImageLabel", gui1)
-avatar.Size = UDim2.new(0, 100, 0, 100)
-avatar.Position = UDim2.new(0, 5, 0, 40)
-avatar.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+        p {
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
 
-local viewedLabel = createLabel(gui1, "Viewed: None", UDim2.new(1, -10, 0, 20), UDim2.new(0, 5, 1, -45))
-local historyLabel = createLabel(gui1, "View History: None", UDim2.new(1, -10, 0, 20), UDim2.new(0, 5, 1, -25))
+        .privacy-note {
+            font-size: 14px;
+            background: rgba(99, 102, 241, 0.1);
+            padding: 12px;
+            border-radius: 12px;
+            border-left: 4px solid var(--primary);
+            margin: 20px 0;
+            text-align: left;
+        }
 
-nameBox:GetPropertyChangedSignal("Text"):Connect(function()
-	local plr = Players:FindFirstChild(nameBox.Text)
-	if plr then
-		avatar.Image = Players:GetUserThumbnailAsync(plr.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
-	else
-		avatar.Image = ""
-	end
-end)
+        .buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            flex-wrap: wrap;
+        }
 
-createButton(gui1, "View 📷", UDim2.new(0, 180, 0, 40), UDim2.new(0, 110, 0, 150), Color3.fromRGB(0, 100, 0)).MouseButton1Click:Connect(function()
-	local target = Players:FindFirstChild(nameBox.Text)
-	if target and target.Character and target.Character:FindFirstChild("Humanoid") then
-		Camera.CameraSubject = target.Character.Humanoid
-		viewedLabel.Text = "Viewed: " .. target.Name
-		addToHistory(target.Name)
-		historyLabel.Text = "View History: " .. table.concat(viewHistory, ", ")
-	end
-end)
+        .btn {
+            flex: 1;
+            padding: 16px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-width: 140px;
+        }
 
-createButton(gui1, "View Yourself 🎮", UDim2.new(0, 180, 0, 40), UDim2.new(0, 110, 0, 200), Color3.fromRGB(0, 85, 150)).MouseButton1Click:Connect(function()
-	if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-		Camera.CameraSubject = LocalPlayer.Character.Humanoid
-		viewedLabel.Text = "Viewed: " .. LocalPlayer.Name
-		addToHistory(LocalPlayer.Name)
-		historyLabel.Text = "View History: " .. table.concat(viewHistory, ", ")
-	end
-end)
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
 
-createButton(gui1, "Random Player 🎲", UDim2.new(0, 180, 0, 40), UDim2.new(0, 110, 0, 250), Color3.fromRGB(100, 50, 0)).MouseButton1Click:Connect(function()
-	local pool = {}
-	for _, p in pairs(Players:GetPlayers()) do
-		if p ~= LocalPlayer then table.insert(pool, p) end
-	end
-	if #pool > 0 then
-		local pick = pool[math.random(1, #pool)]
-		nameBox.Text = pick.Name
-		avatar.Image = Players:GetUserThumbnailAsync(pick.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
-		Camera.CameraSubject = pick.Character.Humanoid
-		viewedLabel.Text = "Viewed: " .. pick.Name
-		addToHistory(pick.Name)
-		historyLabel.Text = "View History: " .. table.concat(viewHistory, ", ")
-	end
-end)
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px -10px var(--primary);
+        }
 
--- Declare GUI 2 and GUI 3 early so Done works
-local gui2 = Instance.new("Frame")
-local gui3 = Instance.new("Frame")
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+        }
 
-createButton(gui1, "Modded Mode 🔒", UDim2.new(0, 180, 0, 40), UDim2.new(0, 110, 0, 300), Color3.fromRGB(150, 0, 150)).MouseButton1Click:Connect(function()
-	gui2.Visible = true
-end)
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
 
-local reopenMainBtn = createButton(gui, "View Player GUI 👁️", UDim2.new(0, 180, 0, 40), UDim2.new(0.01, 0, 0.85, 0), Color3.fromRGB(50, 150, 150))
-reopenMainBtn.Visible = false
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
 
-createButton(gui1, "➖", UDim2.new(0, 40, 0, 30), UDim2.new(1, -90, 0, 0), Color3.fromRGB(255, 255, 0)).MouseButton1Click:Connect(function()
-	gui1.Visible = false
-	reopenMainBtn.Visible = true
-end)
+        .hidden {
+            display: none !important;
+        }
 
-reopenMainBtn.MouseButton1Click:Connect(function()
-	gui1.Visible = true
-	reopenMainBtn.Visible = false
-end)
+        .location-info {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 16px;
+            margin: 20px 0;
+            text-align: left;
+        }
 
-createButton(gui1, "❌", UDim2.new(0, 40, 0, 30), UDim2.new(1, -45, 0, 0), Color3.fromRGB(150, 0, 0)).MouseButton1Click:Connect(function()
-	gui1.Visible = false
-	gui2.Visible = false
-	gui3.Visible = false
-end)
+        .location-info p {
+            margin-bottom: 8px;
+            font-family: monospace;
+            font-size: 14px;
+        }
 
--- GUI 2 (Password)
-gui2.Parent = gui
-gui2.Size = UDim2.new(0, 220, 0, 200)
-gui2.Position = UDim2.new(0.4, 0, 0.4, 0)
-gui2.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-gui2.Visible = false
-gui2.Active = true
-gui2.Draggable = true
+        .location-info strong {
+            color: var(--primary);
+        }
 
-local passBox = Instance.new("TextBox", gui2)
-passBox.Size = UDim2.new(0.8, 0, 0, 40)
-passBox.Position = UDim2.new(0.1, 0, 0.05, 0)
-passBox.Text = ""
-passBox.TextEditable = false
-passBox.ClearTextOnFocus = false
-passBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-passBox.TextColor3 = Color3.new(1, 1, 1)
+        .session-id {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-family: monospace;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
 
-for i = 1, 10 do
-	local num = i % 10
-	local btn = createButton(gui2, tostring(num), UDim2.new(0, 40, 0, 30),
-		UDim2.new(0, 10 + ((i-1)%5)*42, 0, 60 + math.floor((i-1)/5)*35),
-		Color3.fromRGB(30, 30, 30))
-	btn.MouseButton1Click:Connect(function()
-		passBox.Text = passBox.Text .. tostring(num)
-	end)
-end
+        .error-text {
+            color: var(--error);
+            font-weight: 500;
+        }
 
-createButton(gui2, "Done", UDim2.new(0.8, 0, 0, 30), UDim2.new(0.1, 0, 0.75, 0), Color3.fromRGB(0, 100, 0)).MouseButton1Click:Connect(function()
-	if passBox.Text == "0001" then
-		gui1.Visible = false
-		gui2.Visible = false
-		gui3.Visible = true
-	else
-		gui2.Visible = false
-	end
-end)
+        .pulse {
+            animation: pulse 2s infinite;
+        }
 
--- GUI 3 (Modded GUI)
-gui3.Parent = gui
-gui3.Size = UDim2.new(0, 300, 0, 240)
-gui3.Position = UDim2.new(0.35, 0, 0.35, 0)
-gui3.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-gui3.Visible = false
-gui3.Active = true
-gui3.Draggable = true
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
 
-local tpBox = Instance.new("TextBox", gui3)
-tpBox.Size = UDim2.new(0, 200, 0, 40)
-tpBox.Position = UDim2.new(0, 10, 0, 40)
-tpBox.PlaceholderText = "Enter Player Name"
-tpBox.Text = ""
-tpBox.TextColor3 = Color3.new(1, 1, 1)
-tpBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
 
-local tpImg = Instance.new("ImageLabel", gui3)
-tpImg.Size = UDim2.new(0, 80, 0, 80)
-tpImg.Position = UDim2.new(0, 210, 0, 35)
-tpImg.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
 
-tpBox:GetPropertyChangedSignal("Text"):Connect(function()
-	local plr = Players:FindFirstChild(tpBox.Text)
-	if plr then
-		tpImg.Image = Players:GetUserThumbnailAsync(plr.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
-	else
-		tpImg.Image = ""
-	end
-end)
+        /* ADMIN PAGE */
+        .admin-body {
+            background: #0a0a0a;
+        }
 
-createButton(gui3, "Teleport Player", UDim2.new(0.8, 0, 0, 40), UDim2.new(0.1, 0, 0.7, 0), Color3.fromRGB(0, 150, 150)).MouseButton1Click:Connect(function()
-	local target = Players:FindFirstChild(tpBox.Text)
-	if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
-		LocalPlayer.Character:MoveTo(target.Character.HumanoidRootPart.Position + Vector3.new(2, 0, 2))
-	end
-end)
+        .admin-header {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            flex-wrap: wrap;
+            gap: 20px;
+        }
 
-createButton(gui3, "Random Player 🎲", UDim2.new(0.8, 0, 0, 40), UDim2.new(0.1, 0, 0.5, 0), Color3.fromRGB(120, 80, 0)).MouseButton1Click:Connect(function()
-	local pool = {}
-	for _, p in pairs(Players:GetPlayers()) do
-		if p ~= LocalPlayer then table.insert(pool, p) end
-	end
-	if #pool > 0 then
-		local pick = pool[math.random(1, #pool)]
-		tpBox.Text = pick.Name
-		tpImg.Image = Players:GetUserThumbnailAsync(pick.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
-	end
-end)
+        .admin-header h1 {
+            margin: 0;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-createButton(gui3, "❌", UDim2.new(0, 40, 0, 30), UDim2.new(1, -45, 0, 0), Color3.fromRGB(150, 0, 0)).MouseButton1Click:Connect(function()
-	gui3.Visible = false
-	gui1.Visible = true
-end)
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
 
-local reopenModBtn = createButton(gui, "View Player GUI Mod", UDim2.new(0, 180, 0, 40), UDim2.new(0.01, 0, 0.9, 0), Color3.fromRGB(50, 100, 200))
-reopenModBtn.Visible = false
+        .btn-small {
+            padding: 10px 20px;
+            font-size: 14px;
+        }
 
-createButton(gui3, "➖", UDim2.new(0, 40, 0, 30), UDim2.new(1, -90, 0, 0), Color3.fromRGB(255, 255, 0)).MouseButton1Click:Connect(function()
-	gui3.Visible = false
-	reopenModBtn.Visible = true
-end)
+        .stats {
+            display: flex;
+            gap: 30px;
+        }
 
-reopenModBtn.MouseButton1Click:Connect(function()
-	gui3.Visible = true
-	reopenModBtn.Visible = false
-end)
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            display: block;
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary);
+            transition: all 0.3s;
+        }
+
+        .stat-number.updated {
+            color: var(--success);
+            transform: scale(1.2);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .admin-container {
+            display: flex;
+            height: calc(100vh - 80px);
+        }
+
+        .sidebar {
+            width: 400px;
+            background: #1a1a1a;
+            padding: 20px;
+            overflow-y: auto;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar h2 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: space-between;
+        }
+
+        .users-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .user-card {
+            background: #252525;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .user-card:hover {
+            border-color: var(--primary);
+            transform: translateX(4px);
+        }
+
+        .user-card.inactive {
+            opacity: 0.6;
+            border-left: 3px solid var(--error);
+        }
+
+        .user-card.active {
+            border-left: 3px solid var(--success);
+        }
+
+        .user-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--error);
+            position: relative;
+        }
+
+        .status-dot.online {
+            background: var(--success);
+            box-shadow: 0 0 10px var(--success);
+        }
+
+        .status-dot.online::after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            border-radius: 50%;
+            border: 2px solid var(--success);
+            animation: ripple 2s infinite;
+        }
+
+        @keyframes ripple {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+
+        .user-details {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .user-details p {
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-map {
+            width: 100%;
+            padding: 8px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .btn-map:hover {
+            background: var(--primary-dark);
+        }
+
+        .map-container {
+            flex: 1;
+            position: relative;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 40px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-online {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--success);
+        }
+
+        .badge-offline {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--error);
+        }
+
+        .sync-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 1000;
+            background: rgba(34, 197, 94, 0.9);
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sync-indicator.syncing {
+            background: rgba(245, 158, 11, 0.9);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        /* Responsivo */
+        @media (max-width: 768px) {
+            .admin-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: 50vh;
+                order: 2;
+            }
+            
+            .map-container {
+                height: 50vh;
+                order: 1;
+            }
+            
+            .admin-header {
+                padding: 15px;
+            }
+            
+            .header-actions {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .buttons {
+                flex-direction: column;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 2000;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.error {
+            background: var(--error);
+        }
+    </style>
+<base target="_blank">
+</head>
+<body>
+    <!-- PÁGINA INICIAL -->
+    <div id="homePage" class="home-container">
+        <div class="card" id="requestCard">
+            <div class="icon">📍</div>
+            <h1>Permitir Localização?</h1>
+            <p>Este site demonstra geolocalização em tempo real entre abas.</p>
+            
+            <div class="privacy-note">
+                <strong>🔒 Como funciona:</strong><br>
+                • A localização fica apenas no teu browser (LocalStorage)<br>
+                • Abre o Painel Admin noutra aba para ver em tempo real<br>
+                • Usa BroadcastChannel para comunicação instantânea<br>
+                • Podes exportar/importar dados como JSON
+            </div>
+            
+            <div class="buttons">
+                <button id="allowBtn" class="btn btn-primary">
+                    Permitir VPN
+                </button>
+                <button id="denyBtn" class="btn btn-secondary">
+                    Recusar
+                </button>
+            </div>
+            
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <a href="?admin" class="btn btn-secondary btn-small">
+                    🔐 Ser hackeado
+                </a>
+            </div>
+        </div>
+
+        <div class="card hidden" id="successCard">
+            <div class="icon success">✅</div>
+            <h1>A Partilhar Localização!</h1>
+            <p>Os dados estão sincronizados em tempo real.</p>
+            
+            <div class="location-info">
+                <p><strong>📍 Latitude:</strong> <span id="lat">--</span></p>
+                <p><strong>📍 Longitude:</strong> <span id="lng">--</span></p>
+                <p><strong>🎯 Precisão:</strong> <span id="accuracy">--</span> metros</p>
+                <p><strong>🕐 Atualizado:</strong> <span id="timestamp">--</span></p>
+                <p><strong>📡 Status:</strong> <span id="status" class="pulse">A sincronizar...</span></p>
+            </div>
+            
+            <div class="session-id">
+                ID: <span id="sessionId">--</span><br>
+                <small>Deixa assim espera ser hackeado.</small>
+            </div>
+
+            <div class="buttons" style="margin-top: 20px;">
+                <button onclick="exportData()" class="btn btn-secondary btn-small">
+                    💾 Exportar JSON
+                </button>
+                <button onclick="location.reload()" class="btn btn-secondary btn-small">
+                    🔄 Nova Sessão
+                </button>
+            </div>
+        </div>
+
+        <div class="card hidden" id="errorCard">
+            <div class="icon error">❌</div>
+            <h1>Acesso Negado</h1>
+            <p id="errorMessage" class="error-text"></p>
+            <button onclick="location.reload()" class="btn btn-primary" style="margin-top: 20px;">
+                Tentar Novamente
+            </button>
+        </div>
+    </div>
+
+    <!-- PAINEL ADMIN -->
+    <div id="adminPage" class="hidden admin-body">
+        <div class="sync-indicator" id="syncStatus">
+            <span class="status-dot online" style="position: static;"></span>
+            <span>Em tempo real</span>
+        </div>
+
+        <div class="admin-header">
+            <h1>🗺️ Painel de Localizações</h1>
+            
+            <div class="header-actions">
+                <button onclick="exportData()" class="btn btn-secondary btn-small">
+                    💾 Exportar JSON
+                </button>
+                <label class="btn btn-secondary btn-small" style="cursor: pointer;">
+                    📁 Importar JSON
+                    <input type="file" class="file-input" accept=".json" onchange="importData(this)">
+                </label>
+                <button onclick="clearAll()" class="btn btn-secondary btn-small" style="background: rgba(239, 68, 68, 0.2); color: var(--error);">
+                    🗑️ Limpar Tudo
+                </button>
+                <a href="?" class="btn btn-primary btn-small">
+                    ➕ Nova Localização
+                </a>
+            </div>
+
+            <div class="stats">
+                <div class="stat">
+                    <span class="stat-number" id="totalUsers">0</span>
+                    <span class="stat-label">Total</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number" id="onlineUsers">0</span>
+                    <span class="stat-label">Online</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number" id="lastUpdate">--:--:--</span>
+                    <span class="stat-label">Atualização</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-container">
+            <div class="sidebar">
+                <h2>
+                    📋 Utilizadores
+                    <span id="userCount" class="badge badge-online">0</span>
+                </h2>
+                <div id="usersList" class="users-list">
+                    <div class="empty-state">
+                        <div class="loading-spinner"></div>
+                        <p>Aguardando dados...</p>
+                        <small>Abre a página inicial noutra aba e permite localização</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="map-container">
+                <div id="map"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // ==========================================
+        // SISTEMA DE ARMAZENAMENTO & SINCRONIZAÇÃO
+        // ==========================================
+        
+        const STORAGE_KEY = 'location_tracker_data';
+        const BROADCAST_KEY = 'location_tracker_channel';
+        
+        let sessionId = null;
+        let updateInterval = null;
+        let broadcastChannel = null;
+        let map = null;
+        let markers = {};
+        let isAdmin = false;
+
+        // Inicializar BroadcastChannel (comunicação entre abas)
+        function initBroadcast() {
+            if ('BroadcastChannel' in window) {
+                broadcastChannel = new BroadcastChannel(BROADCAST_KEY);
+                broadcastChannel.onmessage = (event) => {
+                    const { type, data } = event.data;
+                    if (type === 'location_update') {
+                        refreshData();
+                    } else if (type === 'request_sync') {
+                        if (!isAdmin) sendLocationToAdmin();
+                    }
+                };
+            }
+        }
+
+        // Guardar dados no LocalStorage
+        function saveToStorage(data) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            // Notificar outras abas
+            if (broadcastChannel) {
+                broadcastChannel.postMessage({ type: 'location_update', data: Date.now() });
+            }
+            // Evento para abas antigas (fallback)
+            window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEY }));
+        }
+
+        // Ler dados do LocalStorage
+        function getFromStorage() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            return data ? JSON.parse(data) : {};
+        }
+
+        // ==========================================
+        // INICIALIZAÇÃO
+        // ==========================================
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            initBroadcast();
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            isAdmin = urlParams.has('admin');
+
+            if (isAdmin) {
+                initAdmin();
+            } else {
+                initHome();
+            }
+
+            // Escutar mudanças no storage (outras abas)
+            window.addEventListener('storage', (e) => {
+                if (e.key === STORAGE_KEY) {
+                    if (isAdmin) refreshData();
+                }
+            });
+        });
+
+        // ==========================================
+        // PÁGINA INICIAL (USER)
+        // ==========================================
+        
+        function initHome() {
+            document.getElementById('homePage').classList.remove('hidden');
+            document.getElementById('adminPage').classList.add('hidden');
+
+            document.getElementById('allowBtn').addEventListener('click', requestLocation);
+            document.getElementById('denyBtn').addEventListener('click', () => {
+                showError('Recusaste partilhar a localização.');
+            });
+
+            // Pedir sync se já existe admin aberto
+            if (broadcastChannel) {
+                broadcastChannel.postMessage({ type: 'request_sync' });
+            }
+        }
+
+        function requestLocation() {
+            if (!navigator.geolocation) {
+                showError('Geolocalização não suportada.');
+                return;
+            }
+
+            const btn = document.getElementById('allowBtn');
+            btn.innerHTML = '<span class="loading-spinner" style="width: 16px; height: 16px; border-width: 2px;"></span>';
+            btn.disabled = true;
+
+            navigator.geolocation.getCurrentPosition(
+                handleSuccess,
+                handleError,
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        }
+
+        function handleSuccess(position) {
+            const { latitude, longitude, accuracy } = position.coords;
+            sessionId = 'user_' + Math.random().toString(36).substr(2, 9);
+            
+            saveLocation(latitude, longitude, accuracy);
+            showSuccess(latitude, longitude, accuracy);
+            
+            // Atualizar a cada 3 segundos
+            updateInterval = setInterval(() => {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        const { latitude, longitude, accuracy } = pos.coords;
+                        saveLocation(latitude, longitude, accuracy);
+                        updateDisplay(latitude, longitude, accuracy);
+                    },
+                    (err) => console.warn('Erro update:', err),
+                    { enableHighAccuracy: true, maximumAge: 5000 }
+                );
+            }, 3000);
+
+            // Marcar offline ao sair
+            window.addEventListener('beforeunload', markOffline);
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) markOffline();
+                else {
+                    const data = getFromStorage();
+                    if (data[sessionId]) {
+                        data[sessionId].active = true;
+                        data[sessionId].timestamp = Date.now();
+                        saveToStorage(data);
+                    }
+                }
+            });
+        }
+
+        function saveLocation(lat, lng, accuracy) {
+            const data = getFromStorage();
+            data[sessionId] = {
+                latitude: lat,
+                longitude: lng,
+                accuracy: Math.round(accuracy),
+                timestamp: Date.now(),
+                active: true,
+                platform: navigator.platform,
+                userAgent: navigator.userAgent.substring(0, 50),
+                language: navigator.language,
+                screen: `${window.screen.width}x${window.screen.height}`
+            };
+            saveToStorage(data);
+        }
+
+        function markOffline() {
+            const data = getFromStorage();
+            if (data[sessionId]) {
+                data[sessionId].active = false;
+                data[sessionId].lastSeen = Date.now();
+                saveToStorage(data);
+            }
+        }
+
+        function sendLocationToAdmin() {
+            // Chamado quando admin pede sync
+            if (sessionId) {
+                const data = getFromStorage();
+                if (data[sessionId]) {
+                    saveToStorage(data); // Re-trigger update
+                }
+            }
+        }
+
+        function handleError(error) {
+            let msg = 'Erro desconhecido.';
+            switch(error.code) {
+                case error.PERMISSION_DENIED: msg = 'Permissão negada.'; break;
+                case error.POSITION_UNAVAILABLE: msg = 'Localização indisponível.'; break;
+                case error.TIMEOUT: msg = 'Timeout.'; break;
+            }
+            showError(msg);
+        }
+
+        function showSuccess(lat, lng, accuracy) {
+            document.getElementById('requestCard').classList.add('hidden');
+            document.getElementById('successCard').classList.remove('hidden');
+            document.getElementById('sessionId').textContent = sessionId;
+            updateDisplay(lat, lng, accuracy);
+        }
+
+        function updateDisplay(lat, lng, accuracy) {
+            document.getElementById('lat').textContent = lat.toFixed(6);
+            document.getElementById('lng').textContent = lng.toFixed(6);
+            document.getElementById('accuracy').textContent = Math.round(accuracy);
+            document.getElementById('timestamp').textContent = new Date().toLocaleTimeString();
+            document.getElementById('status').textContent = '✓ Sincronizado';
+            document.getElementById('status').classList.remove('pulse');
+            document.getElementById('status').style.color = 'var(--success)';
+        }
+
+        function showError(msg) {
+            document.getElementById('requestCard').classList.add('hidden');
+            document.getElementById('errorCard').classList.remove('hidden');
+            document.getElementById('errorMessage').textContent = msg;
+        }
+
+        // ==========================================
+        // PAINEL ADMIN
+        // ==========================================
+        
+        function initAdmin() {
+            document.getElementById('homePage').classList.add('hidden');
+            document.getElementById('adminPage').classList.remove('hidden');
+            document.body.classList.add('admin-body');
+
+            // Mapa centrado em Portugal
+            map = L.map('map').setView([39.5, -8], 6);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap'
+            }).addTo(map);
+
+            refreshData();
+            
+            // Atualizar a cada segundo
+            setInterval(refreshData, 1000);
+            
+            // Verificar inativos
+            setInterval(checkInactive, 10000);
+        }
+
+        function refreshData() {
+            const data = getFromStorage();
+            const users = Object.entries(data);
+            const now = Date.now();
+            
+            // Stats
+            const onlineCount = users.filter(([_, u]) => u.active && (now - u.timestamp < 30000)).length;
+            updateStat('totalUsers', users.length);
+            updateStat('onlineUsers', onlineCount);
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+            document.getElementById('userCount').textContent = onlineCount;
+
+            // Lista
+            const list = document.getElementById('usersList');
+            list.innerHTML = '';
+
+            if (users.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <p>Sem dados</p>
+                        <small>Abre <a href="?" style="color: var(--primary);">a página inicial</a> noutra aba</small>
+                    </div>`;
+                return;
+            }
+
+            users.sort((a, b) => b[1].timestamp - a[1].timestamp);
+
+            users.forEach(([id, user]) => {
+                const isOnline = user.active && (now - user.timestamp < 30000);
+                updateMarker(id, user, isOnline);
+                
+                const card = document.createElement('div');
+                card.className = `user-card ${isOnline ? 'active' : 'inactive'}`;
+                card.onclick = () => centerMap(user.latitude, user.longitude);
+                
+                card.innerHTML = `
+                    <div class="user-header">
+                        <span class="status-dot ${isOnline ? 'online' : ''}"></span>
+                        <strong>${id.substring(0, 10)}...</strong>
+                        <span class="badge ${isOnline ? 'badge-online' : 'badge-offline'}">
+                            ${isOnline ? 'ONLINE' : 'OFFLINE'}
+                        </span>
+                    </div>
+                    <div class="user-details">
+                        <p>📍 ${user.latitude.toFixed(6)}, ${user.longitude.toFixed(6)}</p>
+                        <p>🎯 ${Math.round(user.accuracy || 0)}m • ${user.platform || 'N/A'}</p>
+                        <p>🕐 ${getTimeAgo(user.timestamp)}</p>
+                    </div>
+                    <button class="btn-map" onclick="event.stopPropagation(); centerMap(${user.latitude}, ${user.longitude})">
+                        🎯 Ver no Mapa
+                    </button>
+                `;
+                list.appendChild(card);
+            });
+
+            // Limpar marcadores antigos
+            Object.keys(markers).forEach(id => {
+                if (!data[id]) {
+                    map.removeLayer(markers[id]);
+                    delete markers[id];
+                }
+            });
+        }
+
+        function updateMarker(id, user, isOnline) {
+            const color = isOnline ? '#22c55e' : '#ef4444';
+            
+            if (markers[id]) {
+                markers[id].setLatLng([user.latitude, user.longitude]);
+                markers[id].setStyle({ fillColor: color, color: color });
+            } else {
+                markers[id] = L.circleMarker([user.latitude, user.longitude], {
+                    radius: 10,
+                    fillColor: color,
+                    color: '#fff',
+                    weight: 3,
+                    fillOpacity: 0.8
+                }).addTo(map).bindPopup(`
+                    <b>${id.substring(0, 15)}...</b><br>
+                    ${isOnline ? '🟢 Online' : '🔴 Offline'}<br>
+                    Precisão: ${Math.round(user.accuracy || 0)}m
+                `);
+            }
+        }
+
+        function checkInactive() {
+            const now = Date.now();
+            const data = getFromStorage();
+            let changed = false;
+            
+            Object.entries(data).forEach(([id, user]) => {
+                if (user.active && (now - user.timestamp > 60000)) {
+                    data[id].active = false;
+                    changed = true;
+                }
+            });
+            
+            if (changed) saveToStorage(data);
+        }
+
+        function centerMap(lat, lng) {
+            map.setView([lat, lng], 15);
+            Object.entries(markers).forEach(([id, marker]) => {
+                const pos = marker.getLatLng();
+                if (Math.abs(pos.lat - lat) < 0.001 && Math.abs(pos.lng - lng) < 0.001) {
+                    marker.openPopup();
+                }
+            });
+        }
+
+        function updateStat(id, value) {
+            const el = document.getElementById(id);
+            if (el.textContent != value) {
+                el.textContent = value;
+                el.classList.add('updated');
+                setTimeout(() => el.classList.remove('updated'), 300);
+            }
+        }
+
+        function getTimeAgo(timestamp) {
+            const secs = Math.floor((Date.now() - timestamp) / 1000);
+            if (secs < 10) return 'Agora';
+            if (secs < 60) return `${secs}s`;
+            if (secs < 3600) return `${Math.floor(secs/60)}min`;
+            return `${Math.floor(secs/3600)}h`;
+        }
+
+        // ==========================================
+        // UTILITÁRIOS (Exportar/Importar)
+        // ==========================================
+        
+        function exportData() {
+            const data = getFromStorage();
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `locations_${new Date().toISOString().slice(0,10)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('💾 Dados exportados!');
+        }
+
+        function importData(input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    saveToStorage(data);
+                    refreshData();
+                    showToast('📁 Dados importados com sucesso!');
+                } catch (err) {
+                    showToast('❌ Erro ao importar ficheiro', true);
+                }
+            };
+            reader.readAsText(file);
+            input.value = '';
+        }
+
+        function clearAll() {
+            if (confirm('🗑️ Limpar TODOS os dados?')) {
+                localStorage.removeItem(STORAGE_KEY);
+                saveToStorage({});
+                refreshData();
+                showToast('🗑️ Dados limpos!');
+            }
+        }
+
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.className = 'toast show' + (isError ? ' error' : '');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // Expor funções globais
+        window.exportData = exportData;
+        window.importData = importData;
+        window.clearAll = clearAll;
+        window.centerMap = centerMap;
+    </script>
+</body>
+</html>
