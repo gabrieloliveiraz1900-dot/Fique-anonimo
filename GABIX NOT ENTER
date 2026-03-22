@@ -1,0 +1,259 @@
+--[[
+	WARNING: Heads up! This script has not been verified by ScriptBlox. Use at your own risk!
+]]
+-- View Player GUI (Full System with Password + Modded GUI + Sounds + No Typing)
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "ViewSystem"
+gui.ResetOnSpawn = false
+gui.Parent = gethui and gethui() or game.CoreGui
+
+game.StarterGui:SetCore("SendNotification", {
+	Title = "Welcome",
+	Text = "Welcome to View Player GUI, " .. LocalPlayer.Name .. "!",
+	Duration = 5
+})
+
+local function createButton(parent, text, size, pos, color)
+	local btn = Instance.new("TextButton")
+	btn.Text = text
+	btn.Size = size
+	btn.Position = pos
+	btn.BackgroundColor3 = color
+	btn.TextColor3 = Color3.new(1, 1, 1)
+	btn.Font = Enum.Font.SourceSansBold
+	btn.TextSize = 16
+	btn.Parent = parent
+	local sound = Instance.new("Sound", btn)
+	sound.SoundId = "rbxassetid://12221967"
+	btn.MouseButton1Click:Connect(function()
+		sound:Play()
+	end)
+	return btn
+end
+
+local function createLabel(parent, text, size, pos)
+	local lbl = Instance.new("TextLabel")
+	lbl.Text = text
+	lbl.Size = size
+	lbl.Position = pos
+	lbl.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+	lbl.TextColor3 = Color3.new(1, 1, 1)
+	lbl.Font = Enum.Font.SourceSans
+	lbl.TextSize = 16
+	lbl.Parent = parent
+	return lbl
+end
+
+local viewHistory = {}
+local function addToHistory(name)
+	for _, n in pairs(viewHistory) do if n == name then return end end
+	table.insert(viewHistory, name)
+	if #viewHistory > 5 then viewHistory = {} end
+end
+
+-- GUI 1
+local gui1 = Instance.new("Frame", gui)
+gui1.Size = UDim2.new(0, 320, 0, 420)
+gui1.Position = UDim2.new(0.3, 0, 0.3, 0)
+gui1.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+gui1.Active = true
+gui1.Draggable = true
+
+createLabel(gui1, "View Player GUI 👁️", UDim2.new(1, 0, 0, 30), UDim2.new(0, 0, 0, 0))
+
+local nameBox = Instance.new("TextBox", gui1)
+nameBox.Size = UDim2.new(0, 180, 0, 40)
+nameBox.Position = UDim2.new(0, 110, 0, 40)
+nameBox.PlaceholderText = "Enter player name"
+nameBox.Text = ""
+nameBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+nameBox.TextColor3 = Color3.new(1, 1, 1)
+
+local avatar = Instance.new("ImageLabel", gui1)
+avatar.Size = UDim2.new(0, 100, 0, 100)
+avatar.Position = UDim2.new(0, 5, 0, 40)
+avatar.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+
+local viewedLabel = createLabel(gui1, "Viewed: None", UDim2.new(1, -10, 0, 20), UDim2.new(0, 5, 1, -45))
+local historyLabel = createLabel(gui1, "View History: None", UDim2.new(1, -10, 0, 20), UDim2.new(0, 5, 1, -25))
+
+nameBox:GetPropertyChangedSignal("Text"):Connect(function()
+	local plr = Players:FindFirstChild(nameBox.Text)
+	if plr then
+		avatar.Image = Players:GetUserThumbnailAsync(plr.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
+	else
+		avatar.Image = ""
+	end
+end)
+
+createButton(gui1, "View 📷", UDim2.new(0, 180, 0, 40), UDim2.new(0, 110, 0, 150), Color3.fromRGB(0, 100, 0)).MouseButton1Click:Connect(function()
+	local target = Players:FindFirstChild(nameBox.Text)
+	if target and target.Character and target.Character:FindFirstChild("Humanoid") then
+		Camera.CameraSubject = target.Character.Humanoid
+		viewedLabel.Text = "Viewed: " .. target.Name
+		addToHistory(target.Name)
+		historyLabel.Text = "View History: " .. table.concat(viewHistory, ", ")
+	end
+end)
+
+createButton(gui1, "View Yourself 🎮", UDim2.new(0, 180, 0, 40), UDim2.new(0, 110, 0, 200), Color3.fromRGB(0, 85, 150)).MouseButton1Click:Connect(function()
+	if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+		Camera.CameraSubject = LocalPlayer.Character.Humanoid
+		viewedLabel.Text = "Viewed: " .. LocalPlayer.Name
+		addToHistory(LocalPlayer.Name)
+		historyLabel.Text = "View History: " .. table.concat(viewHistory, ", ")
+	end
+end)
+
+createButton(gui1, "Random Player 🎲", UDim2.new(0, 180, 0, 40), UDim2.new(0, 110, 0, 250), Color3.fromRGB(100, 50, 0)).MouseButton1Click:Connect(function()
+	local pool = {}
+	for _, p in pairs(Players:GetPlayers()) do
+		if p ~= LocalPlayer then table.insert(pool, p) end
+	end
+	if #pool > 0 then
+		local pick = pool[math.random(1, #pool)]
+		nameBox.Text = pick.Name
+		avatar.Image = Players:GetUserThumbnailAsync(pick.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
+		Camera.CameraSubject = pick.Character.Humanoid
+		viewedLabel.Text = "Viewed: " .. pick.Name
+		addToHistory(pick.Name)
+		historyLabel.Text = "View History: " .. table.concat(viewHistory, ", ")
+	end
+end)
+
+-- Declare GUI 2 and GUI 3 early so Done works
+local gui2 = Instance.new("Frame")
+local gui3 = Instance.new("Frame")
+
+createButton(gui1, "Modded Mode 🔒", UDim2.new(0, 180, 0, 40), UDim2.new(0, 110, 0, 300), Color3.fromRGB(150, 0, 150)).MouseButton1Click:Connect(function()
+	gui2.Visible = true
+end)
+
+local reopenMainBtn = createButton(gui, "View Player GUI 👁️", UDim2.new(0, 180, 0, 40), UDim2.new(0.01, 0, 0.85, 0), Color3.fromRGB(50, 150, 150))
+reopenMainBtn.Visible = false
+
+createButton(gui1, "➖", UDim2.new(0, 40, 0, 30), UDim2.new(1, -90, 0, 0), Color3.fromRGB(255, 255, 0)).MouseButton1Click:Connect(function()
+	gui1.Visible = false
+	reopenMainBtn.Visible = true
+end)
+
+reopenMainBtn.MouseButton1Click:Connect(function()
+	gui1.Visible = true
+	reopenMainBtn.Visible = false
+end)
+
+createButton(gui1, "❌", UDim2.new(0, 40, 0, 30), UDim2.new(1, -45, 0, 0), Color3.fromRGB(150, 0, 0)).MouseButton1Click:Connect(function()
+	gui1.Visible = false
+	gui2.Visible = false
+	gui3.Visible = false
+end)
+
+-- GUI 2 (Password)
+gui2.Parent = gui
+gui2.Size = UDim2.new(0, 220, 0, 200)
+gui2.Position = UDim2.new(0.4, 0, 0.4, 0)
+gui2.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+gui2.Visible = false
+gui2.Active = true
+gui2.Draggable = true
+
+local passBox = Instance.new("TextBox", gui2)
+passBox.Size = UDim2.new(0.8, 0, 0, 40)
+passBox.Position = UDim2.new(0.1, 0, 0.05, 0)
+passBox.Text = ""
+passBox.TextEditable = false
+passBox.ClearTextOnFocus = false
+passBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+passBox.TextColor3 = Color3.new(1, 1, 1)
+
+for i = 1, 10 do
+	local num = i % 10
+	local btn = createButton(gui2, tostring(num), UDim2.new(0, 40, 0, 30),
+		UDim2.new(0, 10 + ((i-1)%5)*42, 0, 60 + math.floor((i-1)/5)*35),
+		Color3.fromRGB(30, 30, 30))
+	btn.MouseButton1Click:Connect(function()
+		passBox.Text = passBox.Text .. tostring(num)
+	end)
+end
+
+createButton(gui2, "Done", UDim2.new(0.8, 0, 0, 30), UDim2.new(0.1, 0, 0.75, 0), Color3.fromRGB(0, 100, 0)).MouseButton1Click:Connect(function()
+	if passBox.Text == "0001" then
+		gui1.Visible = false
+		gui2.Visible = false
+		gui3.Visible = true
+	else
+		gui2.Visible = false
+	end
+end)
+
+-- GUI 3 (Modded GUI)
+gui3.Parent = gui
+gui3.Size = UDim2.new(0, 300, 0, 240)
+gui3.Position = UDim2.new(0.35, 0, 0.35, 0)
+gui3.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+gui3.Visible = false
+gui3.Active = true
+gui3.Draggable = true
+
+local tpBox = Instance.new("TextBox", gui3)
+tpBox.Size = UDim2.new(0, 200, 0, 40)
+tpBox.Position = UDim2.new(0, 10, 0, 40)
+tpBox.PlaceholderText = "Enter Player Name"
+tpBox.Text = ""
+tpBox.TextColor3 = Color3.new(1, 1, 1)
+tpBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+
+local tpImg = Instance.new("ImageLabel", gui3)
+tpImg.Size = UDim2.new(0, 80, 0, 80)
+tpImg.Position = UDim2.new(0, 210, 0, 35)
+tpImg.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+
+tpBox:GetPropertyChangedSignal("Text"):Connect(function()
+	local plr = Players:FindFirstChild(tpBox.Text)
+	if plr then
+		tpImg.Image = Players:GetUserThumbnailAsync(plr.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
+	else
+		tpImg.Image = ""
+	end
+end)
+
+createButton(gui3, "Teleport Player", UDim2.new(0.8, 0, 0, 40), UDim2.new(0.1, 0, 0.7, 0), Color3.fromRGB(0, 150, 150)).MouseButton1Click:Connect(function()
+	local target = Players:FindFirstChild(tpBox.Text)
+	if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+		LocalPlayer.Character:MoveTo(target.Character.HumanoidRootPart.Position + Vector3.new(2, 0, 2))
+	end
+end)
+
+createButton(gui3, "Random Player 🎲", UDim2.new(0.8, 0, 0, 40), UDim2.new(0.1, 0, 0.5, 0), Color3.fromRGB(120, 80, 0)).MouseButton1Click:Connect(function()
+	local pool = {}
+	for _, p in pairs(Players:GetPlayers()) do
+		if p ~= LocalPlayer then table.insert(pool, p) end
+	end
+	if #pool > 0 then
+		local pick = pool[math.random(1, #pool)]
+		tpBox.Text = pick.Name
+		tpImg.Image = Players:GetUserThumbnailAsync(pick.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
+	end
+end)
+
+createButton(gui3, "❌", UDim2.new(0, 40, 0, 30), UDim2.new(1, -45, 0, 0), Color3.fromRGB(150, 0, 0)).MouseButton1Click:Connect(function()
+	gui3.Visible = false
+	gui1.Visible = true
+end)
+
+local reopenModBtn = createButton(gui, "View Player GUI Mod", UDim2.new(0, 180, 0, 40), UDim2.new(0.01, 0, 0.9, 0), Color3.fromRGB(50, 100, 200))
+reopenModBtn.Visible = false
+
+createButton(gui3, "➖", UDim2.new(0, 40, 0, 30), UDim2.new(1, -90, 0, 0), Color3.fromRGB(255, 255, 0)).MouseButton1Click:Connect(function()
+	gui3.Visible = false
+	reopenModBtn.Visible = true
+end)
+
+reopenModBtn.MouseButton1Click:Connect(function()
+	gui3.Visible = true
+	reopenModBtn.Visible = false
+end)
